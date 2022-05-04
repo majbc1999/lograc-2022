@@ -18,13 +18,11 @@ module Ex1 where
    Code or Emacs, see README.md) using the `C-c C-l` command (to be
    read as pressing the `Ctrl` and `c` keys simultaneously, followed
    by pressing `Ctrl` and `l` keys simultaneously).
-
    If you have Agda set up correctly, then this should start the
    typechecking process on the given file. If the file loading and
    typechecking succeeds, the syntax should get colour-highlighted,
    and an additional buffer should appear and list the open goals
    (holes in Agda terminology) that need to be filled in this file:
-
    ?0 : Bool
    ?1 : ℕ
    ?2 : ℕ
@@ -49,12 +47,10 @@ data Bool : Set where
 
 {-
    Define the XOR operation on booleans by pattern-matching.
-
    Recall that you can pattern-match on the function arguments by
    writing the name of the corresponding argument in the hole in the
    right-hand side of the definition, and then running the `C-c C-c`
    command with the cursor placed in the given hole.
-
    Also recall that you can fill and complete a hole with what you
    have written in it by putting the cursor in the hole and then
    running the `C-c C-space` command. If you attempted to fill a
@@ -73,7 +69,6 @@ false ⊕ false = false
    the `C-c C-n` command, which uses Agda's normalisation engine to
    compute the normal form of a given expression. For example, using
    `C-c C-n` on `false ⊕ (true ⊕ false)` should return `true`.
-
    Feel free to use `C-c C-n` also with other functions on this
    exercise sheet to test whether your solutions compute correctly.
 -}
@@ -98,7 +93,7 @@ data ℕ : Set where
 -}
 
 incr : ℕ → ℕ
-incr n = suc (n)
+incr n = suc n
 
 {-
    Define a function that decrements a number by one. Give the definition
@@ -106,7 +101,7 @@ incr n = suc (n)
 -}
 
 decr : ℕ → ℕ
-decr zero = zero
+decr zero = 0
 decr (suc n) = n
 
 {-
@@ -116,7 +111,7 @@ decr (suc n) = n
 
 triple : ℕ → ℕ
 triple zero = zero
-triple (suc n) = suc (suc (suc (triple (n))))
+triple (suc n) = suc (suc (suc (triple n)))
 
 
 ----------------
@@ -147,9 +142,8 @@ infixl 7  _*_
 -}
 
 _^_ : ℕ → ℕ → ℕ
-m ^ zero = suc (zero)
-m ^ suc n = (m ^ n) * m
-
+m ^ zero  = 1
+m ^ suc n = m * (m ^ n)
 infixl 8  _^_
 
 
@@ -162,10 +156,8 @@ infixl 8  _^_
    given above and in the lecture (the ℕ type), one can represent
    natural numbers more compactly and more efficiently in binary
    format as bitstrings, defined as the following datatype Bin.
-
    For example, in Agda one represents the binary number 1010₂
    (which stands for the natural number 10) as `⟨⟩ I O I O`.
-
    You get the unicode symbol `⟨` by entering either `\<` or `\langle`,
    and the unicode symbol `⟩` by entering either `\>` or `\rangle`.
 -}
@@ -186,7 +178,7 @@ infixl 20 _I
 b-incr : Bin → Bin
 b-incr ⟨⟩ = ⟨⟩ I
 b-incr (b O) = b I
-b-incr (b I) = (b-incr (b)) O
+b-incr (b I) = (b-incr b) O
 
 
 ----------------
@@ -203,13 +195,13 @@ b-incr (b I) = (b-incr (b)) O
 -}
 
 to : ℕ → Bin
-to zero = ⟨⟩
+to zero = ⟨⟩ O
 to (suc n) = b-incr (to n)
 
 from : Bin → ℕ
-from ⟨⟩ = zero
-from (b O) = 0 + (2 * (from b))
-from (b I) = 1 + (2 * (from b))
+from ⟨⟩ = 0
+from (b O) = 2 * (from b)
+from (b I) = 1 + 2 * (from b)
 
 
 ----------------
@@ -229,10 +221,9 @@ data Even : ℕ → Set where
 -}
 
 data Even₂ : Bin → Set where
-   ne : {b : Bin} → Even₂ (b O)
-
+   even₂ : {b : Bin} → Even₂ (b O)
   {- EXERCISE: add the constructors for this inductive predicate here -}
-
+   
 
 ----------------
 -- Exercise 7 --
@@ -244,12 +235,14 @@ data Even₂ : Bin → Set where
 -}
 
 to-even : {n : ℕ} → Even n → Even₂ (to n)
-to-even even-z = ne
-to-even (even-ss p) = (to-even p)
+to-even even-z = even₂
+to-even (even-ss p) = b-incr-incr-even (to-even p)
 
-   where
-      to-even-aux : {b : Bin} → Even₂ b → Even₂ (b-incr (b-incr b))
-      to-even-aux ne = ne
+  where
+  
+    b-incr-incr-even : {b : Bin} → Even₂ b → Even₂ (b-incr (b-incr b))
+    b-incr-incr-even even₂ = even₂
+
 
 ----------------
 -- Exercise 8 --
@@ -259,7 +252,6 @@ to-even (even-ss p) = (to-even p)
    Observe that for the simplicity and uniformity of its definition,
    the type Bin has redundant elements---in your above solutions, you
    likely treated both `⟨⟩` and `⟨⟩ O` both as the unary number 0.
-
    Define a unary inductive predicate NonEmptyBin to classify those
    binary numbers that are non-empty in the sense that `⟨⟩` is not a
    non-empty binary number on its own---it can only terminate a
@@ -309,7 +301,6 @@ from-ne b p = {!!}
    functional programming and in Agda is that of lists (holding
    elements of some type `A`), given by constructors for the empty
    list and for concatenating a new element to a given list.
-
    For example, the sequence of numbers 0, 1, 2 would be expressed in
    Agda as a list as the expression `0 ∷ 1 ∷ 2 ∷ []` of type `List ℕ`.
 -}
@@ -421,5 +412,4 @@ length-≤-≦ᴸ xs ys p = {!!}
    - (observational) equality
    - "less than or equal" order
    - show that `from` takes even numbers to even numbers
--}
-   
+-} 
